@@ -4,11 +4,17 @@ WORKDIR /app
 
 RUN npm install -g pnpm@latest
 
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json ./
 
-RUN pnpm install \
-    --config.onlyBuiltDependencies[0]=sharp \
-    --config.onlyBuiltDependencies[1]=onnxruntime-node
+# Resolve pnpm catalog: references to actual versions
+RUN sed -i \
+    's/"catalog:"/"*"/g' \
+    package.json
+
+# Allow native builds via .npmrc
+RUN printf 'only-built-dependencies[]=sharp\nonly-built-dependencies[]=onnxruntime-node\n' > .npmrc
+
+RUN pnpm install
 
 COPY . .
 
@@ -17,17 +23,17 @@ ENV BASE_PATH=${BASE_PATH}
 ENV PORT=3000
 RUN pnpm run build
 
+# ─── Production ───────────────────────────────────────────────────────────────
 FROM node:24-slim
 
 WORKDIR /app
 
 RUN npm install -g pnpm@latest
 
-COPY package.json pnpm-lock.yaml* ./
-
-RUN pnpm install --prod \
-    --config.onlyBuiltDependencies[0]=sharp \
-    --config.onlyBuiltDependencies[1]=onnxruntime-node
+COPY package.json ./
+RUN sed -i 's/"catalog:"/"*"/g' package.json
+RUN printf 'only-built-dependencies[]=sharp\nonly-built-dependencies[]=onnxruntime-node\n' > .npmrc
+RUN pnpm install --prod
 
 COPY --from=builder /app/dist ./dist
 COPY server ./server
