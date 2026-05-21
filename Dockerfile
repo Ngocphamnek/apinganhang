@@ -2,11 +2,16 @@ FROM node:24-slim AS builder
 
 WORKDIR /app
 
+# Install build tools needed for native modules (sharp, onnxruntime-node)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN npm install -g pnpm@latest
 
 COPY package.json ./
 
-# Replace pnpm catalog: references with real versions
+# Resolve pnpm catalog: references to real versions
 RUN sed -i \
     -e 's/"@types\/node": "catalog:"/"@types\/node": "^25.3.3"/g' \
     -e 's/"vite": "catalog:"/"vite": "^7.3.2"/g' \
@@ -29,19 +34,11 @@ FROM node:24-slim
 
 WORKDIR /app
 
-COPY package.json ./
-
-# Replace catalog: refs and remove devDependencies block for npm install
-RUN sed -i \
-    -e 's/"@types\/node": "catalog:"/"@types\/node": "^25.3.3"/g' \
-    -e 's/"vite": "catalog:"/"vite": "^7.3.2"/g' \
-    package.json
-
-# Use npm for production install (no catalog: issues)
-RUN npm install --omit=dev --ignore-scripts=false
-
+# Copy everything from builder (node_modules already built with native deps)
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY server ./server
+COPY package.json ./
 
 ENV NODE_ENV=production
 ENV BASE_PATH=/
