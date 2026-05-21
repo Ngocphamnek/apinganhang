@@ -6,12 +6,13 @@ RUN npm install -g pnpm@latest
 
 COPY package.json ./
 
-# Resolve pnpm catalog: references to actual versions
+# Replace pnpm catalog: references with real versions
 RUN sed -i \
-    's/"catalog:"/"*"/g' \
+    -e 's/"@types\/node": "catalog:"/"@types\/node": "^25.3.3"/g' \
+    -e 's/"vite": "catalog:"/"vite": "^7.3.2"/g' \
     package.json
 
-# Allow native builds via .npmrc
+# Allow native builds
 RUN printf 'only-built-dependencies[]=sharp\nonly-built-dependencies[]=onnxruntime-node\n' > .npmrc
 
 RUN pnpm install
@@ -28,12 +29,16 @@ FROM node:24-slim
 
 WORKDIR /app
 
-RUN npm install -g pnpm@latest
-
 COPY package.json ./
-RUN sed -i 's/"catalog:"/"*"/g' package.json
-RUN printf 'only-built-dependencies[]=sharp\nonly-built-dependencies[]=onnxruntime-node\n' > .npmrc
-RUN pnpm install --prod
+
+# Replace catalog: refs and remove devDependencies block for npm install
+RUN sed -i \
+    -e 's/"@types\/node": "catalog:"/"@types\/node": "^25.3.3"/g' \
+    -e 's/"vite": "catalog:"/"vite": "^7.3.2"/g' \
+    package.json
+
+# Use npm for production install (no catalog: issues)
+RUN npm install --omit=dev --ignore-scripts=false
 
 COPY --from=builder /app/dist ./dist
 COPY server ./server
