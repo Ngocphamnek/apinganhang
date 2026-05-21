@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HARU88</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta name="description" content="Professional CoreBank Panel PRO" />
+    <script>
+      (function () {
+        window.addEventListener('error', function (e) {
+          if (
+            e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
+            e.message === 'ResizeObserver loop limit exceeded'
+          ) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+          }
+        }, true);
+        var OrigRO = window.ResizeObserver;
+        window.ResizeObserver = function (cb) {
+          return new OrigRO(function (entries, observer) {
+            window.requestAnimationFrame(function () {
+              try { cb(entries, observer); } catch (_) {}
+            });
+          });
+        };
+        window.ResizeObserver.prototype = OrigRO.prototype;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

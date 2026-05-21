@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/corebank/"
+title = "CoreBank"
+version = "1.0.0"
+id = "artifacts/corebank"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/corebank/" ]
+localPort = 25918
+
+[services.development]
+run = "pnpm --filter @workspace/corebank run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/corebank", "run", "build" ]
+publicDir = "artifacts/corebank/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25918"
+BASE_PATH = "/corebank/"

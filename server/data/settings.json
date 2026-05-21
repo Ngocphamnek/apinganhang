@@ -1,0 +1,32 @@
+{
+  "telegram": {
+    "enabled": false,
+    "botToken": "",
+    "chatId": ""
+  },
+  "discord": {
+    "enabled": false,
+    "webhookUrl": ""
+  },
+  "customWebhook": {
+    "enabled": true,
+    "url": "https://eb2f5af7-592c-4653-89f5-b7fc2265fd9c-00-3cv7kjpehivrc.pike.replit.dev/api/bank/webhook",
+    "secret": "corebank2025"
+  },
+  "monitor": {
+    "intervalSeconds": 10,
+    "running": true
+  },
+  "payos": {
+    "enabled": false,
+    "clientId": "",
+    "apiKey": "",
+    "checksumKey": "",
+    "cancelUrl": "",
+    "returnUrl": ""
+  },
+  "connection": {
+    "coreBankApiUrl": "http://localhost:2002",
+    "botWebhookUrl": "https://eb2f5af7-592c-4653-89f5-b7fc2265fd9c-00-3cv7kjpehivrc.pike.replit.dev/api/bank/webhook"
+  }
+}
